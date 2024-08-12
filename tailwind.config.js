@@ -15,6 +15,7 @@ module.exports = {
       },
       boxShadow: {
         offset: "6px 6px rgba(242, 235, 189, 1)",
+        offsetDark: "6px 6px rgba(29, 50, 59, 1)",
       },
     },
   },
