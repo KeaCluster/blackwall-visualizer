@@ -9,6 +9,7 @@ module.exports = {
     extend: {
       fontFamily: {
         mono: ["IBM Plex Mono", "monospace"],
+        scan: ["Sixtyfour Variable", "monospace"],
       },
       colors: {
         darkBlue: "#1d323b",

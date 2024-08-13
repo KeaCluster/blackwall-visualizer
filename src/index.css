@@ -1,5 +1,6 @@
 @import "@fontsource/ibm-plex-mono";
 @import "@fontsource/ibm-plex-mono/200";
+@import "@fontsource-variable/sixtyfour/scan";
 
 @tailwind base;
 @tailwind components;
