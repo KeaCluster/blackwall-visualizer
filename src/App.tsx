@@ -7,9 +7,11 @@ function App() {
 
   return (
     <div className="w-screen h-screen bg-gray-900">
-      <div className="flex ietms-center justify-center h-full">
-        <FileUploader onFileSelected={setAudioFile} />
-      </div>
+      {!audioFile && (
+        <div className="flex items-center justify-center h-full">
+          <FileUploader onFileSelected={setAudioFile} />
+        </div>
+      )}
     </div>
   );
 }
