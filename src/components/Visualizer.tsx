@@ -3,17 +3,17 @@ import { Canvas } from "@react-three/fiber";
 import Scene from "./Scene.tsx";
 
 interface VisualizerProps {
-  analyser: AnalyserNode;
+  analyzer: AnalyserNode;
   dataArray: Uint8Array;
 }
 
-const Visualizer: React.FC<VisualizerProps> = ({ analyser, dataArray }) => {
+const Visualizer: React.FC<VisualizerProps> = ({ analyzer, dataArray }) => {
   return (
     <Canvas
       camera={{ position: [0, 0, 5] }}
       style={{ background: "black", height: "100vh", width: "100vw" }}
     >
-      <Scene analyser={analyser} dataArray={dataArray} />
+      <Scene analyzer={analyzer} dataArray={dataArray} />
     </Canvas>
   );
 };

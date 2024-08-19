@@ -1,11 +1,11 @@
 import React from "react";
 
 interface SceneProps {
-  analyser: AnalyserNode;
+  analyzer: AnalyserNode;
   dataArray: Uint8Array;
 }
 
-const Scene: React.FC<SceneProps> = ({ analyser, dataArray }) => {
+const Scene: React.FC<SceneProps> = ({ analyzer, dataArray }) => {
   return (
     <>
       <h2>Audio here</h2>
