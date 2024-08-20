@@ -7,14 +7,28 @@ interface AudioPayerProps {
 }
 
 const AudioPayer: React.FC<AudioPayerProps> = ({ audioFile }) => {
-  const { analyser, dataArray } = useAudioPayer(audioFile);
+  const { analyser, dataArray, isPlaying, togglePlay, isLoading } =
+    useAudioPayer(audioFile);
 
   return (
-    <>
-      {analyser && dataArray && (
-        <Visualizer analyser={analyser} dataArray={dataArray} />
+    <div className="relative w-full h-full">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75">
+          <div className="text-white">Loading...</div>
+        </div>
       )}
-    </>
+      {!isLoading && analyser && dataArray && (
+        <>
+          <button
+            onClick={togglePlay}
+            className="absolute top-4 left-4 p-2 bg-gray-200 text-white rounded"
+          >
+            {isPlaying ? "Pause" : "Play"}
+          </button>
+          <Visualizer analyser={analyser} dataArray={dataArray} />
+        </>
+      )}
+    </div>
   );
 };
 

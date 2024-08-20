@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 
 export function useAudioPayer(audioFile: File | null) {
-  const [analyzer, setAnalyser] = useState<AnalyserNode | null>(null);
+  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
   const [dataArray, setDataArray] = useState<Uint8Array | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -10,6 +12,7 @@ export function useAudioPayer(audioFile: File | null) {
   useEffect(() => {
     if (audioFile) {
       // prepare data
+      setIsLoading(true);
       const audioContext = new AudioContext();
       audioContextRef.current = audioContext;
 
@@ -18,23 +21,32 @@ export function useAudioPayer(audioFile: File | null) {
       reader.onload = function (event) {
         // assertion
         const arrayBuffer = event.target?.result as ArrayBuffer;
-        audioContext.decodeAudioData(arrayBuffer, (audioBuffer) => {
-          const source = audioContext.createBufferSource();
-          source.buffer = audioBuffer;
+        audioContext.decodeAudioData(
+          arrayBuffer,
+          (audioBuffer) => {
+            const source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
 
-          // node and arr  will help for visualizing data
-          const analyzerNode = audioContext.createAnalyser();
-          analyzerNode.fftSize = 2048; // default frequency
-          const bufferLength = analyzerNode.frequencyBinCount;
-          const dataArray = new Uint8Array(bufferLength);
+            // node and arr  will help for visualizing data
+            const analyserNode = audioContext.createAnalyser();
+            analyserNode.fftSize = 2048; // default frequency
+            const bufferLength = analyserNode.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
 
-          source.connect(analyzerNode);
-          analyzerNode.connect(audioContext.destination);
-          source.start(0);
-          setAnalyser(analyzerNode);
-          setDataArray(dataArray);
-          sourceRef.current = source;
-        });
+            source.connect(analyserNode);
+            analyserNode.connect(audioContext.destination);
+            source.start(0);
+            setIsPlaying(true);
+            setAnalyser(analyserNode);
+            setDataArray(dataArray);
+            sourceRef.current = source;
+            setIsLoading(false);
+          },
+          (error) => {
+            console.error("Error decoding data", error);
+            setIsLoading(false);
+          },
+        );
       };
       reader.readAsArrayBuffer(audioFile);
 
@@ -46,9 +58,23 @@ export function useAudioPayer(audioFile: File | null) {
         if (audioContextRef.current) {
           audioContextRef.current.close();
         }
+        setIsPlaying(false);
+        setAnalyser(null);
+        setDataArray(null);
       };
     }
   }, [audioFile]);
 
-  return { analyzer, dataArray };
+  const togglePlay = () => {
+    if (audioContextRef.current) {
+      if (isPlaying) {
+        audioContextRef.current.suspend();
+      } else {
+        audioContextRef.current.resume();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  return { analyser, dataArray, isPlaying, togglePlay, isLoading };
 }
