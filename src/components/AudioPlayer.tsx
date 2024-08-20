@@ -7,12 +7,12 @@ interface AudioPayerProps {
 }
 
 const AudioPayer: React.FC<AudioPayerProps> = ({ audioFile }) => {
-  const { analyzer, dataArray } = useAudioPayer(audioFile);
+  const { analyser, dataArray } = useAudioPayer(audioFile);
 
   return (
     <>
-      {analyzer && dataArray && (
-        <Visualizer analyzer={analyzer} dataArray={dataArray} />
+      {analyser && dataArray && (
+        <Visualizer analyser={analyser} dataArray={dataArray} />
       )}
     </>
   );

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import FileUploader from "./components/FileUploader";
+import AudioPlayer from "./components/AudioPlayer";
 
 function App() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
@@ -12,6 +13,7 @@ function App() {
           <FileUploader onFileSelected={setAudioFile} />
         </div>
       )}
+      {audioFile && <AudioPlayer audioFile={audioFile} />}
     </div>
   );
 }
