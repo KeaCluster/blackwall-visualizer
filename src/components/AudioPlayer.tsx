@@ -1,6 +1,7 @@
 import React from "react";
 import { useAudioPayer } from "../hooks/useAudioPlayer";
 import Visualizer from "./Visualizer.tsx";
+import LoadingBar from "./LoadingBar.tsx";
 
 interface AudioPayerProps {
   audioFile: File;
@@ -12,11 +13,7 @@ const AudioPayer: React.FC<AudioPayerProps> = ({ audioFile }) => {
 
   return (
     <div className="relative w-full h-full">
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75">
-          <div className="text-white">Loading...</div>
-        </div>
-      )}
+      {isLoading && <LoadingBar isLoading={isLoading} />}
       {!isLoading && analyser && dataArray && (
         <>
           <button
