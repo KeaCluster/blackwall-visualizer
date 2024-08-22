@@ -1,9 +1,9 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import "./App.css";
 import FileUploader from "./components/FileUploader";
 import AudioPlayer from "./components/AudioPlayer";
 
-function App() {
+const App: React.FC = () => {
   const [audioFile, setAudioFile] = useState<File | null>(null);
 
   return (
@@ -16,6 +16,6 @@ function App() {
       {audioFile && <AudioPlayer audioFile={audioFile} />}
     </div>
   );
-}
+};
 
 export default App;

@@ -1,6 +1,6 @@
-import { Environment } from "@react-three/drei";
 import React, { Suspense } from "react";
 import Bars from "./Bars";
+import { Environment, OrbitControls } from "@react-three/drei";
 
 interface SceneProps {
   analyser: AnalyserNode;
@@ -16,6 +16,7 @@ const Scene: React.FC<SceneProps> = ({ analyser, dataArray }) => {
         <Bars analyser={analyser} dataArray={dataArray} />
         <Environment preset="night" />
       </Suspense>
+      <OrbitControls />
     </>
   );
 };

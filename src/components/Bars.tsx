@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -11,16 +11,30 @@ const Bars: React.FC<BarsProps> = ({ analyser, dataArray }) => {
   const meshRef = useRef<THREE.InstancedMesh>(null!);
   const numBars = 64;
 
-  const dummy = new THREE.Object3D();
+  const positions = useMemo(() => {
+    const pos = [];
+    for (let i = 0; i < numBars; i++) {
+      pos.push((i - numBars / 2) * 0.15);
+    }
+    return pos;
+  }, [numBars]);
 
   useFrame(() => {
     if (analyser && dataArray && meshRef.current) {
+      analyser.getByteFrequencyData(dataArray);
+
+      // Outside loop for opt
+      const matrix = new THREE.Matrix4();
+      const position = new THREE.Vector3();
+      const scale = new THREE.Vector3();
+      const quaternion = new THREE.Quaternion();
+
       for (let i = 0; i < numBars; i++) {
-        const scale = dataArray[i] / 128;
-        dummy.position.set((i - numBars / 2) * 0.3, 0, 0);
-        dummy.scale.set(0.2, scale, 0.2);
-        dummy.updateMatrix();
-        meshRef.current.setMatrixAt(i, dummy.matrix);
+        const scaleY = dataArray[i] / 128;
+        position.set(positions[i], 0, 0);
+        scale.set(0.1, scaleY, 0.1);
+        matrix.compose(position, quaternion, scale);
+        meshRef.current.setMatrixAt(i, matrix);
       }
       meshRef.current.instanceMatrix.needsUpdate = true;
     }
