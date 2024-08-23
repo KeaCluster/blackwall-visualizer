@@ -17,7 +17,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   return (
     <div className="p-4">
       <div className="m-12">
-        <h2 className="text-4xl font-scan">NETWATCH</h2>
+        <h2 className="text-7xl font-scan">NETWATCH</h2>
       </div>
       <div>
         <input
