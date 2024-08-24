@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 interface FileUploaderProps {
   onFileSelected: (file: File) => void;
@@ -7,10 +7,27 @@ interface FileUploaderProps {
 const FileUploader: React.FC<FileUploaderProps> = ({
   onFileSelected,
 }: FileUploaderProps) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isValid, setIsValid] = useState<string>("");
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target?.files;
     if (files && files[0]) {
-      onFileSelected?.(files[0]);
+      const file = files[0];
+      const isAudio = file.type.endsWith(".mp3"); // valid file type
+      if (isAudio) {
+        setSelectedFile(file);
+        setIsValid("");
+      } else {
+        setSelectedFile(null);
+        setIsValid("Please select a valid audio file: (.mp3).");
+      }
+    }
+  };
+
+  const handleConfirm = () => {
+    if (selectedFile) {
+      onFileSelected(selectedFile);
     }
   };
 
@@ -26,6 +43,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           accept="audio/*"
           onChange={handleFileChange}
         />
+        <button
+          className="w-36 font-mono m-8 p-2 bg-amber-100 border-2 border-black text-black  ${selectedFile ? `bg-gray-700`} : cursor-not-allowed bg-gray-700` "
+          onClick={handleConfirm}
+          disabled={!selectedFile}
+        >
+          Confirm
+        </button>
       </div>
     </div>
   );
