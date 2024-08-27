@@ -16,7 +16,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     const files = event.target?.files;
     if (files && files[0]) {
       const file = files[0];
-      const isAudio = file.type.startsWith("audio/"); // valid file type
+      const isAudio = file.type.startsWith("audio/"); // valid file MIME type
       if (isAudio) {
         setSelectedFile(file);
         setError("");
@@ -48,7 +48,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           onChange={handleFileChange}
         />
         <button
-          className={`min-w-36 font-mono m-8 p-2 border-2 border-black text-black ${selectedFile && isValid ? "bg-amber-100 hover:bg-darkBlue hover:text-amber-100" : "cursor-not-allowed bg-gray-700"}`}
+          className={`min-w-36 text-sm font-mono m-8 p-2 border-2 border-black text-black ${selectedFile && isValid ? "bg-amber-100 hover:bg-darkBlue hover:text-amber-100" : "cursor-not-allowed bg-gray-700"}`}
           onClick={handleConfirm}
           disabled={!selectedFile || !isValid}
         >
