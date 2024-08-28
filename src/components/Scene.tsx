@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import Bars from "./Bars";
 import { Environment, OrbitControls } from "@react-three/drei";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
 
 interface SceneProps {
   analyser: AnalyserNode;
@@ -15,6 +16,15 @@ const Scene: React.FC<SceneProps> = ({ analyser, dataArray }) => {
       <Suspense fallback={null}>
         <Bars analyser={analyser} dataArray={dataArray} />
         <Environment preset="night" />
+        {/*
+          <EffectComposer>
+            <Bloom
+              luminanceThreshold={0.2}
+              luminanceSmoothing={3.9}
+              height={300}
+            />
+          </EffectComposer>
+           */}
       </Suspense>
       <OrbitControls />
     </>

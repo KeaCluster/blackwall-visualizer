@@ -14,20 +14,20 @@ const Bars: React.FC<BarsProps> = ({ analyser, dataArray }) => {
   const positions = useMemo(() => {
     const pos = [];
     for (let i = 0; i < numBars; i++) {
-      pos.push((i - numBars / 2) * 0.15);
+      pos.push((i - numBars / 2) * 0.2);
     }
     return pos;
   }, [numBars]);
 
+  // Outside useEffect for opt
+  const matrix = new THREE.Matrix4();
+  const position = new THREE.Vector3();
+  const scale = new THREE.Vector3();
+  const quaternion = new THREE.Quaternion();
+
   useFrame(() => {
     if (analyser && dataArray && meshRef.current) {
       analyser.getByteFrequencyData(dataArray);
-
-      // Outside loop for opt
-      const matrix = new THREE.Matrix4();
-      const position = new THREE.Vector3();
-      const scale = new THREE.Vector3();
-      const quaternion = new THREE.Quaternion();
 
       for (let i = 0; i < numBars; i++) {
         const scaleY = dataArray[i] / 128;
