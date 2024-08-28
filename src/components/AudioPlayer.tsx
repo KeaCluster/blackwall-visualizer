@@ -18,7 +18,7 @@ const AudioPayer: React.FC<AudioPayerProps> = ({ audioFile }) => {
         <>
           <button
             onClick={togglePlay}
-            className="min-w-36 absolute font-mono font-bold bottom-4 right-4 p-1 bg-amber-100 text-black hover:bg-amber-600 z-10"
+            className="min-w-36 absolute font-mono font-extrabold bottom-4 right-4 p-1 bg-amber-100 text-black hover:bg-amber-600 z-10"
           >
             {isPlaying ? "PAUSE" : "PLAY"}
           </button>

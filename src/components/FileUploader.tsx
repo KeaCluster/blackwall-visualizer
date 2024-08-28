@@ -42,13 +42,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       </div>
       <div>
         <input
-          className="w-full text-sm font-mono cursor-pointer file:font-mono text-gray-500 shadow-offset pointer-events-none file:pointer-events-auto mr-0 bg-amber-100 file:border-none border-2 border-black file:py-2 file:px-4 file:text-sm file:bg-amber-200 file:text-darkBlue hover:file:bg-darkBlue hover:file:text-amber-100"
+          className="w-full text-sm font-mono cursor-pointer file:font-mono text-gray-500 shadow-offset pointer-events-none file:pointer-events-auto mr-0 bg-amber-100 file:border-none border-2 border-black file:py-2 file:px-4 file:text-sm file:bg-amber-200 file:text-darkBlue hover:file:bg-amber-600 hover:file:text-amber-100"
           type="file"
           accept="audio/*"
           onChange={handleFileChange}
         />
         <button
-          className={`min-w-36 text-sm font-mono m-8 p-2 border-2 border-black text-black ${selectedFile && isValid ? "bg-amber-100 hover:bg-darkBlue hover:text-amber-100" : "cursor-not-allowed bg-gray-700"}`}
+          className={`min-w-36 text-sm font-mono m-8 p-2 border-2 border-black text-black ${selectedFile && isValid ? "bg-amber-100 hover:bg-amber-600 hover:text-amber-100" : "cursor-not-allowed bg-gray-700"}`}
           onClick={handleConfirm}
           disabled={!selectedFile || !isValid}
         >
