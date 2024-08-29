@@ -97,6 +97,7 @@ export function useAudioPayer(audioFile: File | null) {
     isPlaying,
     togglePlay,
     isLoading,
+    volume,
     changeVolume,
   };
 }
