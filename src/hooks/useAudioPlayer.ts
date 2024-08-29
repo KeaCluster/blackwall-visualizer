@@ -5,9 +5,11 @@ export function useAudioPayer(audioFile: File | null) {
   const [dataArray, setDataArray] = useState<Uint8Array | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [volume, setVolume] = useState<number>(0.3); // volume
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null); // one input one output for volume
 
   useEffect(() => {
     if (audioFile) {
@@ -33,14 +35,19 @@ export function useAudioPayer(audioFile: File | null) {
             const bufferLength = analyserNode.frequencyBinCount;
             const dataArray = new Uint8Array(bufferLength);
 
+            const gainNode = audioContext.createGain();
+            gainNode.gain.value = volume;
+            gainNodeRef.current = gainNode;
+
             source.connect(analyserNode);
             analyserNode.connect(audioContext.destination);
             source.start(0);
             setIsPlaying(true);
+
             setAnalyser(analyserNode);
             setDataArray(dataArray);
             sourceRef.current = source;
-            setIsLoading(false);
+            setIsLoading(false); // Full load
           },
           (error) => {
             console.error("Error decoding data", error);
@@ -61,6 +68,7 @@ export function useAudioPayer(audioFile: File | null) {
         setIsPlaying(false);
         setAnalyser(null);
         setDataArray(null);
+        setVolume(0.3);
       };
     }
   }, [audioFile]);
@@ -76,5 +84,19 @@ export function useAudioPayer(audioFile: File | null) {
     }
   };
 
-  return { analyser, dataArray, isPlaying, togglePlay, isLoading };
+  const changeVolume = (value: number) => {
+    setVolume(value);
+    if (gainNodeRef.current) {
+      gainNodeRef.current.gain.value = value;
+    }
+  };
+
+  return {
+    analyser,
+    dataArray,
+    isPlaying,
+    togglePlay,
+    isLoading,
+    changeVolume,
+  };
 }
