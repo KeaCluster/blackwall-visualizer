@@ -6,12 +6,18 @@ export function useAudioPayer(audioFile: File | null) {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.3); // volume
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null); // one input one output for volume
+  const startTimeRef = useRef<number>(0);
+  const pausedTimeRef = useRef<number>(0);
 
   useEffect(() => {
+    // return type for specific type
+    let intervalId: ReturnType<typeof setTimeout>;
     if (audioFile) {
       // prepare data
       setIsLoading(true);
@@ -40,14 +46,33 @@ export function useAudioPayer(audioFile: File | null) {
             gainNodeRef.current = gainNode;
 
             source.connect(analyserNode);
-            analyserNode.connect(audioContext.destination);
+            analyserNode.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
             source.start(0);
+            startTimeRef.current = audioContext.currentTime;
             setIsPlaying(true);
+            setDuration(audioBuffer.duration);
 
             setAnalyser(analyserNode);
             setDataArray(dataArray);
             sourceRef.current = source;
             setIsLoading(false); // Full load
+
+            // Timer per sec
+            intervalId = setInterval(() => {
+              if (audioContextRef.current && isPlaying) {
+                const elapsed =
+                  audioContextRef.current.currentTime -
+                  startTimeRef.current +
+                  pausedTimeRef.current;
+                setCurrentTime(elapsed);
+                if (elapsed >= audioBuffer.duration) {
+                  setIsPlaying(false);
+                  clearInterval(intervalId);
+                }
+              }
+            }, 500);
           },
           (error) => {
             console.error("Error decoding data", error);
@@ -69,6 +94,9 @@ export function useAudioPayer(audioFile: File | null) {
         setAnalyser(null);
         setDataArray(null);
         setVolume(0.3);
+        setCurrentTime(0);
+        setDuration(0);
+        clearInterval(intervalId);
       };
     }
   }, [audioFile]);
@@ -79,6 +107,7 @@ export function useAudioPayer(audioFile: File | null) {
         audioContextRef.current.suspend();
       } else {
         audioContextRef.current.resume();
+        startTimeRef.current = audioContextRef.current.currentTime;
       }
       setIsPlaying(!isPlaying);
     }
@@ -99,5 +128,7 @@ export function useAudioPayer(audioFile: File | null) {
     isLoading,
     volume,
     changeVolume,
+    currentTime,
+    duration,
   };
 }
