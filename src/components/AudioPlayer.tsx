@@ -37,21 +37,21 @@ const AudioPayer: React.FC<AudioPayerProps> = ({ audioFile }) => {
       {isLoading && <LoadingBar isLoading={isLoading} />}
       {!isLoading && analyser && dataArray && (
         <div className="">
-          <div className="flex items-center space-x-4 absolute bottom-4 left-4 z-10">
+          <div className="flex items-center space-x-4 p-1 absolute bottom-4 left-4 z-10 bg-amber-100 font-mono tracking-wide font-bold text-black shadow-offset shadow-amber-100 border-2 border-solid border-black">
             <button
               onClick={togglePlay}
-              className="min-w-36 font-mono tracking-wide font-bold p-1 bg-amber-100 text-black hover:bg-amber-600 z-10"
+              className="min-w-36 font-mono tracking-wide border-double border-black border-2 hover:bg-amber-600 m-2"
             >
               {isPlaying ? "PAUSE" : "PLAY"}
             </button>
-            <span className="text-black font-mono font-medium bg-amber-100 text-sm p-2 min-w-24">
+            <span className="font-medium text-sm min-w-24">
               {`${formatTime(currentTime)} - ${formatTime(duration)}`}
             </span>
-            <label htmlFor="volume" className="text-white">
+            <label htmlFor="volume" className="text-sm">
               Volume
             </label>
             <input
-              className="w-30` border-black bg-amber-600"
+              className="w-30` border-black border-2 bg-amber-600"
               id="volume"
               type="range"
               min="0"
