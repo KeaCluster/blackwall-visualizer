@@ -19,7 +19,12 @@ export function useAudioPayer(audioFile: File | null) {
   useEffect(() => {
     // return type for specific type
     let intervalId: ReturnType<typeof setTimeout>;
+
     if (audioFile) {
+      // context and compatibility
+      if (!window.AudioContext) {
+        setError("Your browser does not support the Web Audio API.");
+      }
       // prepare data
       setIsLoading(true);
       const audioContext = new AudioContext();
@@ -136,5 +141,6 @@ export function useAudioPayer(audioFile: File | null) {
     changeVolume,
     currentTime,
     duration,
+    error,
   };
 }

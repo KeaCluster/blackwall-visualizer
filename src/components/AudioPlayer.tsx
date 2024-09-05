@@ -25,12 +25,23 @@ const AudioPayer: React.FC<AudioPayerProps> = ({ audioFile }) => {
     changeVolume,
     currentTime,
     duration,
+    error,
   } = useAudioPayer(audioFile);
 
   const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log(parseFloat(event.target.value));
     changeVolume(parseFloat(event.target.value));
   };
+
+  if (error) {
+    return (
+      <div className="relative w-full h-full">
+        <div className="flex items-center justify-center bg-amber-900 font-mono font-bold text-black">
+          <h3>{error}</h3>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-full">
@@ -40,7 +51,7 @@ const AudioPayer: React.FC<AudioPayerProps> = ({ audioFile }) => {
           <div className="flex items-center space-x-4 p-1 absolute bottom-4 left-4 z-10 bg-amber-100 font-mono tracking-wide font-bold text-black shadow-offset shadow-amber-100 border-2 border-solid border-black">
             <button
               onClick={togglePlay}
-              className="min-w-36 font-mono tracking-wide border-double border-black border-2 hover:bg-amber-600 m-2"
+              className="min-w-36 font-mono tracking-wide hover:bg-amber-600 p-1 m-1"
             >
               {isPlaying ? "PAUSE" : "PLAY"}
             </button>
