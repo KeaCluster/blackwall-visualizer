@@ -8,6 +8,7 @@ export function useAudioPayer(audioFile: File | null) {
   const [volume, setVolume] = useState<number>(0.3); // volume
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
+  const [error, setError] = useState<string>("");
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -76,6 +77,7 @@ export function useAudioPayer(audioFile: File | null) {
           },
           (error) => {
             console.error("Error decoding data", error);
+            setError("Failed to decode audio data");
             setIsLoading(false);
           },
         );
@@ -96,6 +98,7 @@ export function useAudioPayer(audioFile: File | null) {
         setVolume(0.3);
         setCurrentTime(0);
         setDuration(0);
+        setError("");
         clearInterval(intervalId);
       };
     }
@@ -105,11 +108,14 @@ export function useAudioPayer(audioFile: File | null) {
     if (audioContextRef.current) {
       if (isPlaying) {
         audioContextRef.current.suspend();
+        pausedTimeRef.current +=
+          audioContextRef.current.currentTime - startTimeRef.current; // pause for gainNode context
+        setIsPlaying(false);
       } else {
         audioContextRef.current.resume();
         startTimeRef.current = audioContextRef.current.currentTime;
+        setIsPlaying(true);
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
