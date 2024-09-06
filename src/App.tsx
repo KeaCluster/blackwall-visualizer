@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
+import "./fontStyles.css";
 import FileUploader from "./components/FileUploader";
 import AudioPlayer from "./components/AudioPlayer";
 
