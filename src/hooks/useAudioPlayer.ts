@@ -17,59 +17,67 @@ export function useAudioPlayer(audioFile: File | null) {
 
   useEffect(() => {
     if (audioFile) {
-      // prepare data
-      const audioContext = new AudioContext();
-      audioContextRef.current = audioContext;
-
-      // prepare file reader
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const arrayBuffer = event.target?.result as ArrayBuffer;
-        try {
-          // assertion
-          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-          setDuration(audioBuffer.duration);
-
-          const analyserNode = audioContext.createAnalyser();
-          analyserNode.fftSize = 2048;
-          const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
-
-          const gainNode = audioContext.createGain();
-          gainNode.gain.value = volume;
-
-          analyserRef.current = analyserNode;
-          dataArrayRef.current = dataArray;
-          gainNodeRef.current = gainNode;
-
-          playAudio(audioBuffer, offsetRef.current);
-          return () => {
-            stopAudio();
-            audioContext.close();
-          };
-        } catch (error) {
-          console.error("Error decoding audio data", error);
-        }
-        reader.readAsArrayBuffer(audioFile);
-      };
+      initializeAudio();
     }
+    return () => cleanupAudio();
   }, [audioFile]);
+
+  const initializeAudio = async () => {
+    // prepare data
+    const audioContext = new AudioContext();
+    audioContextRef.current = audioContext;
+
+    // prepare file reader
+    try {
+      // assertion
+      const arrayBuffer = await audioFile!.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+      setDuration(audioBuffer.duration);
+      createNodes(audioBuffer);
+      playAudio(audioBuffer, offsetRef.current);
+    } catch (error) {
+      console.error("Error decoding audio data", error);
+    }
+  };
+
+  const createNodes = (audioBuffer: AudioBuffer) => {
+    const audioContext = audioContextRef.current!;
+    const analyserNode = audioContext.createAnalyser();
+    analyserNode.fftSize = 2048;
+
+    const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = volume;
+    analyserRef.current = analyserNode;
+    dataArrayRef.current = dataArray;
+    gainNodeRef.current = gainNode;
+  };
 
   // new Play func
   const playAudio = (audioBuffer: AudioBuffer, offset: number) => {
-    const audioContext = audioContextRef.current;
+    const audioContext = audioContextRef.current!;
     if (!audioContext) return;
 
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
+
+    // connections
     source.connect(analyserRef.current!);
     analyserRef.current!.connect(gainNodeRef.current!);
     gainNodeRef.current!.connect(audioContext.destination);
 
     source.start(0, offset);
+    source.onended = () => {
+      setIsPlaying(false);
+    };
+
     sourceRef.current = source;
     startTimeRef.current = audioContext.currentTime - offset;
     setIsPlaying(true);
-    updateCurrentTime();
+
+    // onAnimationFrame
+    requestAnimationFrame(updateCurrentTime);
   };
 
   const stopAudio = () => {
@@ -86,10 +94,11 @@ export function useAudioPlayer(audioFile: File | null) {
 
   function updateCurrentTime() {
     if (!isPlaying) return;
-    const audioContext = audioContextRef.current;
+    const audioContext = audioContextRef.current!;
     if (audioContext) {
       const elapsed = audioContext.currentTime - startTimeRef.current;
       setCurrentTime(offsetRef.current + elapsed);
+
       if (offsetRef.current + elapsed >= duration) {
         setIsPlaying(false);
       } else {
@@ -107,6 +116,18 @@ export function useAudioPlayer(audioFile: File | null) {
     } else {
       playAudio(sourceRef.current.buffer!, offsetRef.current);
     }
+  };
+
+  const cleanupAudio = () => {
+    stopAudio();
+    audioContextRef.current?.close();
+    analyserRef.current = null;
+    dataArrayRef.current = null;
+    gainNodeRef.current = null;
+    sourceRef.current = null;
+    offsetRef.current = 0;
+    setCurrentTime(0);
+    setIsPlaying(false);
   };
 
   const analyser = analyserRef.current;
