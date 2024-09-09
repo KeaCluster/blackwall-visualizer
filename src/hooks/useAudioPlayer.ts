@@ -5,6 +5,7 @@ export function useAudioPlayer(audioFile: File | null) {
   const [volume, setVolume] = useState<number>(0.3); // volume
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -23,6 +24,7 @@ export function useAudioPlayer(audioFile: File | null) {
   }, [audioFile]);
 
   const initializeAudio = async () => {
+    setIsLoading(true);
     // prepare data
     const audioContext = new AudioContext();
     audioContextRef.current = audioContext;
@@ -34,19 +36,22 @@ export function useAudioPlayer(audioFile: File | null) {
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
       setDuration(audioBuffer.duration);
-      createNodes(audioBuffer);
+      createNodes();
       playAudio(audioBuffer, offsetRef.current);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error decoding audio data", error);
+      setIsLoading(false);
     }
   };
 
-  const createNodes = (audioBuffer: AudioBuffer) => {
+  const createNodes = () => {
     const audioContext = audioContextRef.current!;
     const analyserNode = audioContext.createAnalyser();
     analyserNode.fftSize = 2048;
 
     const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+
     const gainNode = audioContext.createGain();
     gainNode.gain.value = volume;
     analyserRef.current = analyserNode;
@@ -142,5 +147,6 @@ export function useAudioPlayer(audioFile: File | null) {
     changeVolume,
     currentTime,
     duration,
+    isLoading,
   };
 }
