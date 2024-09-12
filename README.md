@@ -1,50 +1,72 @@
-# React + TypeScript + Vite
+# Blackwall Visualizer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<!--toc:start-->
 
-Currently, two official plugins are available:
+- [Blackwall Visualizer](#blackwall-visualizer)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+  - [About](#about)
+    - [Stack](#stack)
+    - [Features](#features)
+  - [How to](#how-to) - [Other](#other) - [Controls](#controls)
 
-## Expanding the ESLint configuration
+  <!--toc:end-->
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## About
 
-- Configure the top-level `parserOptions` property like this:
+A work in progress audio visualizer,
+based upon the aesthetics of Cyberpunk's 2077 the Blackwall.
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Stack
+
+- React
+- React three fiber
+- three.js
+- Tailwind
+- Vite
+
+### Features
+
+- Main `fileUploader` component.
+- Simple `mediaControl` component.
+- Custom Hooks
+  - `useAudioPlayer`: Handles the main audio Buffer playback logic and context.
+  - `useAnimationFrame`: Handles animation frames and syncs through `useRef`.
+- `Bars` component.
+  - So far so good
+
+## How to
+
+Clone (or fork and clone) this repo to your local pc.
+
+```sh
+ git clone <url>
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Access the folder and then install necessary npm dependencies.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```sh
+cd blackwall-visualizer
+npm install
 ```
+
+Then run the vite server and check your browser.
+
+```sh
+npm run dev
+```
+
+After that just follow the instructions of the UI.
+Upload a `.mp4` or any audio file (within reasonable size)
+and enjoy.
+
+### Other
+
+#### Controls
+
+`three.js` and `react-three/fiber` allow for control of the scene.
+
+Use your mouse to control the camera and move around:
+
+- `Hold leftClick` to move the camera _around_ the main component in the scene.
+- `Hold rightClick` to move the main component _around_ from the camera's position.
+- `scrollWheel` to make the scene bigger or smaller.
