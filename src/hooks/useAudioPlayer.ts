@@ -89,7 +89,7 @@ export function useAudioPlayer(audioFile: File | null) {
 
   // new Play func
   const playAudio = (offset: number) => {
-    const audioContext = audioContextRef.current!;
+    const audioContext = audioContextRef.current;
     const audioBuffer = audioBufferRef.current; // correct buffer
 
     if (!audioContext || !audioBuffer) {
@@ -115,12 +115,10 @@ export function useAudioPlayer(audioFile: File | null) {
     source.start(0, offset);
     source.onended = () => {
       setIsPlaying(false);
-      offsetRef.current = 0;
-      setCurrentTime(0);
     };
 
     sourceRef.current = source;
-    startTimeRef.current = audioContext.currentTime - offset;
+    startTimeRef.current = audioContext.currentTime;
     setIsPlaying(true);
 
     // onAnimationFrame
@@ -143,22 +141,26 @@ export function useAudioPlayer(audioFile: File | null) {
     }
   };
 
-  function updateCurrentTime() {
+  const updateCurrentTime = () => {
     if (!isPlaying) return;
     const audioContext = audioContextRef.current;
+
     if (audioContext) {
       const elapsed = audioContext.currentTime - startTimeRef.current;
-      setCurrentTime(offsetRef.current + elapsed);
+      const newTime = offsetRef.current + elapsed;
 
-      if (offsetRef.current + elapsed >= duration) {
+      setCurrentTime(newTime);
+
+      // end of playback
+      if (newTime >= duration) {
         setIsPlaying(false);
-        offsetRef.current = 0;
-        setCurrentTime(0);
+        offsetRef.current = duration;
+        setCurrentTime(duration);
       } else {
         requestAnimationFrame(updateCurrentTime);
       }
     }
-  }
+  };
 
   const togglePlay = () => {
     console.log("Toggle Play: ", isPlaying);
@@ -176,6 +178,9 @@ export function useAudioPlayer(audioFile: File | null) {
       offsetRef.current +=
         audioContextRef.current.currentTime - startTimeRef.current;
     } else {
+      if (offsetRef.current >= duration) {
+        offsetRef.current = 0;
+      }
       console.log("Play");
       playAudio(offsetRef.current);
     }

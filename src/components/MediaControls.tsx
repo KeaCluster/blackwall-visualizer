@@ -11,7 +11,7 @@ interface MediaControlsProps {
 
 const formatTime = (time: number): string => {
   const minutes = Math.floor(time / 60);
-  const seconds = Math.floor(time % 10);
+  const seconds = Math.floor(time % 60);
   return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
 };
 
@@ -23,6 +23,7 @@ const MediaControls: React.FC<MediaControlsProps> = ({
   currentTime,
   duration,
 }) => {
+  //
   const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onVolumeChange(parseFloat(event.target.value));
   };
