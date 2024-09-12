@@ -18,18 +18,26 @@ export function useAudioPlayer(audioFile: File | null) {
   const offsetRef = useRef<number>(0);
 
   useEffect(() => {
+    let isCancelled = false;
+
+    const init = async () => {
+      await initializeAudio(isCancelled);
+    };
     if (audioFile) {
-      initializeAudio();
+      init();
     }
-    return () => cleanupAudio();
+    return () => {
+      isCancelled = true;
+      cleanupAudio();
+    };
   }, [audioFile]);
 
-  const initializeAudio = async () => {
+  const initializeAudio = async (isCancelled: boolean) => {
     setIsLoading(true);
 
     // prepare data
     if (!audioContextRef.current) {
-      const audioContext = new AudioContext();
+      audioContextRef.current = new AudioContext();
     }
     const audioContext = audioContextRef.current;
 
@@ -37,40 +45,64 @@ export function useAudioPlayer(audioFile: File | null) {
     try {
       // assertion
       const arrayBuffer = await audioFile!.arrayBuffer();
-      const audioBuffer = await audioContext!.decodeAudioData(arrayBuffer);
+      if (isCancelled) return;
 
-      setDuration(audioBuffer.duration);
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      if (isCancelled) return;
+
       audioBufferRef.current = audioBuffer; // store correct buffer
+      setDuration(audioBuffer.duration);
 
       createNodes();
-      playAudio(offsetRef.current);
-      setIsLoading(false);
+
+      offsetRef.current = 0;
+      setCurrentTime(0);
+      setIsPlaying(false);
+
+      if (!isCancelled) setIsLoading(false);
     } catch (error) {
       console.error("Error decoding audio data", error);
-      setIsLoading(false);
+      if (!isCancelled) setIsLoading(false);
     }
   };
 
   const createNodes = () => {
-    const audioContext = audioContextRef.current!;
-    const analyserNode = audioContext.createAnalyser();
-    analyserNode.fftSize = 2048;
+    const audioContext = audioContextRef.current;
+    if (!audioContext) {
+      console.error("AudioContext is null in createNodes()");
+      return;
+    }
 
-    const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+    if (!analyserRef.current) {
+      const analyserNode = audioContext.createAnalyser();
+      analyserNode.fftSize = 2048;
+      analyserRef.current = analyserNode;
+      dataArrayRef.current = new Uint8Array(analyserNode.frequencyBinCount);
+    }
 
-    const gainNode = audioContext.createGain();
-    gainNode.gain.value = volume;
-    analyserRef.current = analyserNode;
-    dataArrayRef.current = dataArray;
-    gainNodeRef.current = gainNode;
+    if (!gainNodeRef.current) {
+      const gainNode = audioContext.createGain();
+      gainNode.gain.value = volume;
+      gainNodeRef.current = gainNode;
+    }
   };
 
   // new Play func
   const playAudio = (offset: number) => {
     const audioContext = audioContextRef.current!;
-    const audioBuffer = audioBufferRef.current!; // correct buffer
+    const audioBuffer = audioBufferRef.current; // correct buffer
 
-    if (!audioContext || !audioBuffer) return;
+    if (!audioContext || !audioBuffer) {
+      console.error("AudioContext or AudioBuffer is null");
+      return;
+    }
+
+    // stop existing sources
+    if (sourceRef.current) {
+      sourceRef.current.stop();
+      sourceRef.current.disconnect();
+      sourceRef.current = null;
+    }
 
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
@@ -83,6 +115,8 @@ export function useAudioPlayer(audioFile: File | null) {
     source.start(0, offset);
     source.onended = () => {
       setIsPlaying(false);
+      offsetRef.current = 0;
+      setCurrentTime(0);
     };
 
     sourceRef.current = source;
@@ -95,7 +129,7 @@ export function useAudioPlayer(audioFile: File | null) {
 
   const stopAudio = () => {
     if (sourceRef.current) {
-      sourceRef.current?.stop();
+      sourceRef.current.stop();
       sourceRef.current.disconnect(); // Clear source for resume
       sourceRef.current = null;
     }
@@ -111,13 +145,15 @@ export function useAudioPlayer(audioFile: File | null) {
 
   function updateCurrentTime() {
     if (!isPlaying) return;
-    const audioContext = audioContextRef.current!;
+    const audioContext = audioContextRef.current;
     if (audioContext) {
       const elapsed = audioContext.currentTime - startTimeRef.current;
       setCurrentTime(offsetRef.current + elapsed);
 
       if (offsetRef.current + elapsed >= duration) {
         setIsPlaying(false);
+        offsetRef.current = 0;
+        setCurrentTime(0);
       } else {
         requestAnimationFrame(updateCurrentTime);
       }
@@ -127,10 +163,10 @@ export function useAudioPlayer(audioFile: File | null) {
   const togglePlay = () => {
     console.log("Toggle Play: ", isPlaying);
     if (!audioContextRef.current || !audioBufferRef.current) {
-      console.log(
+      console.error(
         "AudioContext or AudioBuffer is null",
-        audioContextRef,
-        audioBufferRef,
+        audioContextRef.current,
+        audioBufferRef.current,
       );
       return;
     }
@@ -149,7 +185,7 @@ export function useAudioPlayer(audioFile: File | null) {
     stopAudio();
     // cleaner cleanup
     if (audioContextRef.current) {
-      audioContextRef.current?.close();
+      audioContextRef.current.close();
       audioContextRef.current = null;
     }
 
@@ -165,7 +201,9 @@ export function useAudioPlayer(audioFile: File | null) {
 
     dataArrayRef.current = null;
     sourceRef.current = null;
+    audioBufferRef.current = null;
     offsetRef.current = 0;
+    startTimeRef.current = 0;
     setCurrentTime(0);
     setIsPlaying(false);
   };
