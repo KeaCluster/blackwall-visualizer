@@ -1,7 +1,6 @@
 import React, { Suspense } from "react";
 import Bars from "./Bars";
 import { Environment, OrbitControls } from "@react-three/drei";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
 
 interface SceneProps {
   analyser: AnalyserNode;
