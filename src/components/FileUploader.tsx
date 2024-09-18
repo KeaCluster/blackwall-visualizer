@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { select } from "three/webgpu";
 
 interface FileUploaderProps {
   onFileSelected: (file: File) => void;
