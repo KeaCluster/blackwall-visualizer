@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+
 module.exports = {
   content: [
     "./index.html", // Include the root HTML file
@@ -6,7 +7,17 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // Customize your theme here
+      fontFamily: {
+        mono: ["IBM Plex Mono", "monospace"],
+        scan: ["Sixtyfour Variable", "monospace"],
+      },
+      colors: {
+        darkBlue: "#1d323b",
+      },
+      boxShadow: {
+        offset: "6px 6px rgba(242, 235, 189, 1)",
+        offsetDark: "6px 6px rgba(29, 50, 59, 1)",
+      },
     },
   },
   plugins: [],
